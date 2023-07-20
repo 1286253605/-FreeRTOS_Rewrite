@@ -1,0 +1,9 @@
+*.*uv*
+*.s
+*.lst
+*.ioc
+*.mxproject
+/MDK-ARM/*
+.vscode
+Listings
+Objects
