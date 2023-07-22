@@ -1,15 +1,6 @@
-#ifndef LIST_H
-#define LIST_H
-/* -----------头文件包含----------- */
-#include "FreeRTOS.h"
+#ifndef FREERTOS_CONFIG_H
+#define FREERTOS_CONFIG_H
 
-/* -----------结构体定义----------- */
-
-/* 普通节点结构体定义 */
-struct  xLIST_ITEM
-{
-    
-};
-
+#define configUSE_16_BIT_TICKS      0
 
 #endif

@@ -1,6 +1,7 @@
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
+#ifndef INC_FREERTOS_H
+#define INC_FREERTOS_H
 
-#define configUSE_16_BIT_TICKS      0
+#include "FreeRTOSConfig.h"
+#include "portable.h"
 
 #endif

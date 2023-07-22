@@ -2,7 +2,7 @@
  * @Author: Banned 1286253605@qq.com
  * @Date: 2023-07-20 13:46:54
  * @LastEditors: Banned 1286253605@qq.com
- * @LastEditTime: 2023-07-20 14:02:27
+ * @LastEditTime: 2023-07-20 14:47:08
  * @FilePath: \FreeRTOS_Rewrite\FreeRTOS\include\portmacro.h
  * @Description: 
  * 
@@ -26,12 +26,14 @@
 
 typedef portSTACK_TYPE StackType_t;
 typedef long BaseType_t;
+typedef unsigned long UBaseType_t;
 
 #if( configUSE_16_BIT_TICKS == 1 )
     typedef uint16_t TickType_t;
     #define portMAX_DELAY ( TickType_t ) 0xffff
 #else
     typedef uint32_t TickType_t;
+    /* 8个f 4x8=32 32个1 */
     #define portMAX_DELAY ( TickType_t ) 0xffffffffUL
 #endif
 
