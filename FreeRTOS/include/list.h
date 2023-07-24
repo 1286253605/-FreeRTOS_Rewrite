@@ -44,8 +44,9 @@ typedef struct xList
 
 
 /* -----------宏函数----------- */
-#define listSET_LIST_ITEM_OWNER( pxListItem, pxOwner )\
-        ( ( pxListem )->pvOwner = ( void * ) (pxOwner) )
+// #define listSET_LIST_ITEM_OWNER( pxListItem, pxOwner )\
+//         ( ( pxListem )->pvOwner = ( void * ) (pxOwner) )         // 韦东山把pxListItem打错了
+#define listSET_LIST_ITEM_OWNER( pxListItem, pxOwner )		( ( pxListItem )->pvOwner = ( void * ) ( pxOwner ) )
 
 
 /* 获取节点拥有者 */
