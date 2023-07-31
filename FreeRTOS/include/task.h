@@ -1,14 +1,15 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include "FreeRTOS.h"
-#include "projdefs.h"
 #include "list.h"
 #include "port.h"
 
 typedef void * TaskHandle_t;
 
+#define taskYIELD()             portYIELD()
+
 // 任务控制块 TCB //为什么韦东山的代码把这个写到FreeRTOS.h中？
+// 包含了任务的堆栈控制，就绪链表节点，任务名字符串
 typedef struct tskTaskControlBlock
 {
     // 栈顶
@@ -42,4 +43,8 @@ static void prvInitialiseNewTask (
                                 );
 
 
+void prvInitialiseTaskLists( void );
+
 #endif
+						
+						

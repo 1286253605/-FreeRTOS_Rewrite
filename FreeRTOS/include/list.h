@@ -1,7 +1,9 @@
 #ifndef LIST_H
 #define LIST_H
 /* -----------头文件包含----------- */
+
 #include "FreeRTOS.h"
+
 
 /* -----------结构体定义----------- */
 
@@ -105,7 +107,7 @@ typedef struct xList
 
 void vListInitialiseItem( ListItem_t * const pxNewListItem );
 void vListInitialise( List_t * const pxList );
-void xListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem );
+void vListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem );
 void vListInsert( List_t * const pxList, ListItem_t * const pxNewListItem );
 UBaseType_t uxListRemove( ListItem_t * const pxItemToRemove );
 

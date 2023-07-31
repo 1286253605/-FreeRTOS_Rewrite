@@ -13,8 +13,11 @@
 #include "FreeRTOSConfig.h"
 #include "portable.h"
 #include "portmacro.h"
+#include "projdefs.h"
+#include "list.h"
 
 
 
 
 #endif
+

@@ -1,6 +1,15 @@
 #include "task.h"
+#include "FreeRTOS.h"
 
-List_t pxReadyTaskLists[ configMAX_PRIORITIES ];
+// 当前正在运行任务的任务控制块指针 TCB_t *
+volatile TCB_t * pxCurrentTCB = NULL;
+
+// 任务就绪链表
+List_t pxReadyTasksLists[ configMAX_PRIORITIES ];
+
+// main.c中的任务控制块
+extern TCB_t Task_1_TCB;
+extern TCB_t Task_2_TCB;
 
 #if( configSUPPORT_STATIC_ALLOCATION == 1 )
 
@@ -96,6 +105,43 @@ static void prvInitialiseNewTask (
 
 
 }
+
+
+// 就绪列表初始化， 有多少优先级就有多少条优先级链表， 比如此处MAX是5
+void prvInitialiseTaskLists( void )
+{
+    UBaseType_t uxPriority;
+
+    for ( ( UBaseType_t )0U; 
+            uxPriority < ( UBaseType_t )configMAX_PRIORITIES;
+            uxPriority++
+        )
+     {
+        vListInitialise( &( pxReadyTasksLists[ uxPriority ] ) );
+     }
+}
+
+
+
+
+void vTaskStartScheduler( void ) 
+{
+    // 手动指定启动调度器后运行的第一个任务
+    pxCurrentTCB = &Task_1_TCB;
+
+    // 启动调度器
+    if ( xPortStartScheduler() != pdFALSE ){
+        // 不会执行到这里
+    }
+}
+/*  ARM Compiler 6 版本嵌入ARMASM的方法
+void prvStartFirstTask( void ) 
+{
+    __asm(".eabi_attribute Tag_ABI_align_preserved, 1");                // 等价于 Compiler5 PRESERVE8
+    __asm("ldr r0, [r0]");
+
+}
+*/
 
 
 

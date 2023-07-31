@@ -1,3 +1,5 @@
+#include "FreeRTOS.h"
+#include <stdlib.h>
 #include "list.h"
 
 
@@ -27,7 +29,7 @@ void vListInitialise( List_t * const pxList ) {
 }
 
 // 插入节点到空链表中，因为是空链表所以pxIndex才等于End最后一个节点
-void xListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem ) {
+void vListInsertEnd( List_t * const pxList, ListItem_t * const pxNewListItem ) {
     ListItem_t * const pxIndex = pxList->pxIndex;
 
 
