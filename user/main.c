@@ -48,7 +48,8 @@ int main(void) {
     vListInsertEnd( &( pxReadyTasksLists[ 2 ] ), 
                     &( ( ( TCB_t *)( &Task_2_TCB ) )->xStateListItem ) );
 
-    
+    // 原神启动
+    vTaskStartScheduler();
 
     for (;;) {
         /* 6 */
@@ -73,7 +74,7 @@ void Task1_Entry( void *p_arg )
         Flag_1 = 0;
 
         // 触发任务切换，手动任务切换
-        // taskYIELD()
+        taskYIELD();
     }
 }
 
@@ -87,6 +88,6 @@ void Task2_Entry( void *p_arg )
         Flag_2 = 0;
 
         // 触发任务切换，手动任务切换
-        // taskYIELD()
+        taskYIELD();
     }
 }

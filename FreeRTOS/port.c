@@ -135,7 +135,7 @@ __asm void xPortPendSVHandler( void )
     stmdb r0!,{r4-r11}
     str r0,[r2]
 
-    stmdb sp!,{r3,r4}
+    stmdb sp!,{r3,r14}
 
     mov r0,#configMAX_SYSCALL_INTERRUPT_PRIORITY
     msr basepri,r0
@@ -144,7 +144,7 @@ __asm void xPortPendSVHandler( void )
     bl vTaskSwitchContext
     mov r0,#0
     msr basepri,r0
-    ldmia sp!,{r3,r4}
+    ldmia sp!,{r3,r14}
 
     ldr r1,[r3]
     ldr r0,[r1]

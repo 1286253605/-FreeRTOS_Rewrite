@@ -42,14 +42,16 @@ typedef unsigned long UBaseType_t;
 #define portNVIC_PENDSVSET_BIT          ( 1UL << 28UL )
 
 #define portSY_FULL_READ_WRITE          ( 15 )
+
 // portYIELD的原理就是， 将PendSV的寄存器位置1， 等到所有中断执行完之后就调用PendSV中断执行上下文切换
 #define portYIELD()                                     \
 {                                                       \
     /* 触发PendSV， 产生上下文切换，写寄存器位为1 */          \
-    portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT      \
-    __dsb( portSY_FULL_READ_WRITE )                     \
-    __isb( portSY_FULL_READ_WRITE )                     \
+    portNVIC_INT_CTRL_REG = portNVIC_PENDSVSET_BIT;     \
+    __dsb( portSY_FULL_READ_WRITE );                    \
+    __isb( portSY_FULL_READ_WRITE );                    \
 }
+
 
 #endif /* PORTMACRO_H */
 

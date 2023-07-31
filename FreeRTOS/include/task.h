@@ -44,7 +44,7 @@ static void prvInitialiseNewTask (
 
 
 void prvInitialiseTaskLists( void );
-
+void vTaskStartScheduler( void ) ;
 #endif
 						
 						
