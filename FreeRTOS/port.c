@@ -9,11 +9,15 @@
 #define portNVIC_PENDSV_PRI                         ( ( ( uint32_t ) configKERNEL_INTERRUPT_PRIORITY ) << 16UL )
 #define portNVIC_SYSTICK_PRI                        ( ( ( uint32_t ) configKERNEL_INTERRUPT_PRIORITY ) << 24UL )
 
+#define portVECTACTIVE_MASK					( 0xFFUL )
+
 // 当前运行的任务块指针
 extern volatile TCB_t * pxCurrentTCB;
 extern TCB_t Task_1_TCB;
 extern TCB_t Task_2_TCB;
 
+// 嵌套关中断的全局变量
+static UBaseType_t uxCriticalNesting = 0xaaaaaaaa;
 
 static void prvTaskExitError( void ) 
 {
@@ -63,6 +67,9 @@ BaseType_t xPortStartScheduler( void )
     // 配置 PendSV 和 Systick 为优先级最低
     portNVIC_SYSPRI2_REG |= portNVIC_PENDSV_PRI;
     portNVIC_SYSPRI2_REG |= portNVIC_SYSTICK_PRI;
+
+    // 配置嵌套计数器
+    uxCriticalNesting = 0;
 
     // 启动第一个任务，不再返回
     prvStartFirstTask();
@@ -172,4 +179,25 @@ void vTaskSwitchContext( void )
     }
 }
 
+void vPortEnterCritical( void )
+{
+    portDISABLE_INTERRUPTS();
+    uxCriticalNesting++;
 
+    if( uxCriticalNesting == 1 )
+    {
+        configASSERT( ( portNVIC_INT_CTRL_REG & portVECTACTIVE_MASK ) == 0 );
+    }
+
+
+}
+
+void vPortExitCritical( void )
+{
+    configASSERT( uxCriticalNesting );
+    uxCriticalNesting--;
+    if( uxCriticalNesting == 0 )
+    {
+        portENABLE_INTERRUPTS();
+    }
+}

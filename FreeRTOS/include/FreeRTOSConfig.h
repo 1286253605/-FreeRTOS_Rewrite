@@ -15,5 +15,8 @@
 #define xPortSysTickHandler  SysTick_Handler
 #define vPortSVCHandler      SVC_Handler
 
+#define configASSERT( x ) if ((x) == 0) {for( ;; );}
+
+
 #endif
 

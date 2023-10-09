@@ -24,6 +24,10 @@
 #define portSTACK_TYPE  uint32_t
 #define portBASE_TYPE   long            // 32位 long 和 int 一样是4字节
 
+#define portFORCE_INLINE __forceinline
+
+// ? 放这里?
+void vPortEnterCritical( void );
 
 typedef portSTACK_TYPE StackType_t;
 typedef long BaseType_t;
@@ -55,7 +59,8 @@ typedef unsigned long UBaseType_t;
 /* 临界段 */
 #define portDISABLE_INTERRUPTS vPortRaiseBASEPRI()
 
-void vPortRaiseBASEPRI( void )
+
+void portFORCE_INLINE vPortRaiseBASEPRI( void )
 {
     uint32_t ulNewBASEPRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
     __asm
@@ -70,7 +75,7 @@ void vPortRaiseBASEPRI( void )
 /* 带返回值的可嵌套的关中断 */
 #define portSET_INTERRUPT_MASK_FROM_ISR() ulPortRaiseBASEPRI()
 
-static  uint32_t ulPortRaiseBASEPRI( void )
+static portFORCE_INLINE  uint32_t ulPortRaiseBASEPRI( void )
 {
 uint32_t ulReturn, ulNewBASEPRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
 /* mrs保存basepri寄存器的值 再给其赋新的值 返回刚才暂存的值 */
@@ -84,6 +89,32 @@ uint32_t ulReturn, ulNewBASEPRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
 
 	return ulReturn;
 }
+
+/* 开中断 */
+/* 不带中断保护的开中断 */
+#define portENABLE_INTERRUPTS() vPortSetCLEARBASEPRI( 0 )
+
+/* 带中断保护的开中断函数, 这是会被其他函数调用的宏定义 实现嵌套功能 */
+#define portCLEAR_INTERRUPT_MASK_FROM_ISR( x ) vPortSetCLEARBASEPRI( x )
+
+void portFORCE_INLINE  vPortSetCLEARBASEPRI( uint32_t ulBASEPRI )
+{
+    __asm
+    {
+        msr basepri, ulBASEPRI
+    }
+}
+
+
+#define portENTER_CRITICAL() vPortEnterCritical()
+
+#define portDISABLE_INTERRUPTS() vPortRaiseBASEPRI()
+
+/* 退出临界段 */
+#define protEXIT_CRITICAL() vPortExitCritical()
+
+
+
 
 #endif /* PORTMACRO_H */
 

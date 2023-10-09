@@ -8,6 +8,13 @@ typedef void * TaskHandle_t;
 
 #define taskYIELD()             portYIELD()
 
+/* 不带保护的保本 不能嵌套 */
+#define taskENTER_CRITICAL()    portENTER_CRITICAL()
+#define taskEXIT_CRITICAL()     protEXIT_CRITICAL()
+/* 带中断保护的版本 */
+#define taskENTER_CRITICAL_FROM_ISR() portSET_INTERRUPT_MASK_FROM_ISR()
+#define taskEXIT_CRITICAL_FROM_ISR( x )     portCLEAR_INTERRUPT_MASK_FROM_ISR( x )
+
 // 任务控制块 TCB //为什么韦东山的代码把这个写到FreeRTOS.h中？
 // 包含了任务的堆栈控制，就绪链表节点，任务名字符串
 typedef struct tskTaskControlBlock
