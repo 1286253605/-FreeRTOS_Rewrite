@@ -51,6 +51,8 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOcStack,
     *pxTopOcStack = ( StackType_t ) pvParameters;
 
     // 异常发生时，手动加载到CPU寄存器的内容？
+    // 【1009】异常、中断发生时，Cortex-M3会自动保存一部分寄存器(到栈中)，但是剩下的部分需要手动保存到栈中
+
     pxTopOcStack -= 8;
     return pxTopOcStack;
 

@@ -1,8 +1,8 @@
 /*
  * @Author: Banned 1286253605@qq.com
  * @Date: 2023-07-20 13:46:54
- * @LastEditors: Banned 1286253605@qq.com
- * @LastEditTime: 2023-07-20 14:47:08
+ * @LastEditors: banned 1286253605@qq.com
+ * @LastEditTime: 2023-10-09 12:57:23
  * @FilePath: \FreeRTOS_Rewrite\FreeRTOS\include\portmacro.h
  * @Description: 
  * 
@@ -52,6 +52,38 @@ typedef unsigned long UBaseType_t;
     __isb( portSY_FULL_READ_WRITE );                    \
 }
 
+/* 临界段 */
+#define portDISABLE_INTERRUPTS vPortRaiseBASEPRI()
+
+void vPortRaiseBASEPRI( void )
+{
+    uint32_t ulNewBASEPRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
+    __asm
+    {
+        msr basepri, ulNewBASEPRI
+        dsb
+        isb
+    }
+}
+
+
+/* 带返回值的可嵌套的关中断 */
+#define portSET_INTERRUPT_MASK_FROM_ISR() ulPortRaiseBASEPRI()
+
+static  uint32_t ulPortRaiseBASEPRI( void )
+{
+uint32_t ulReturn, ulNewBASEPRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
+/* mrs保存basepri寄存器的值 再给其赋新的值 返回刚才暂存的值 */
+	__asm
+	{
+		mrs ulReturn, basepri
+		msr basepri, ulNewBASEPRI
+		dsb
+		isb
+	}
+
+	return ulReturn;
+}
 
 #endif /* PORTMACRO_H */
 
