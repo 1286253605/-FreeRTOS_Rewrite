@@ -2,7 +2,7 @@
  * @Author: Banned 1286253605@qq.com
  * @Date: 2023-07-20 13:46:54
  * @LastEditors: banned 1286253605@qq.com
- * @LastEditTime: 2023-10-09 12:57:23
+ * @LastEditTime: 2023-10-11 00:47:05
  * @FilePath: \FreeRTOS_Rewrite\FreeRTOS\include\portmacro.h
  * @Description: 
  * 
@@ -105,6 +105,14 @@ void portFORCE_INLINE  vPortSetCLEARBASEPRI( uint32_t ulBASEPRI )
     }
 }
 
+void portFORCE_INLINE void vPortClearBASEPRIFromISR( void )
+{
+    __asm
+    {
+        msr basepri, #0
+    }
+    
+}
 
 #define portENTER_CRITICAL() vPortEnterCritical()
 

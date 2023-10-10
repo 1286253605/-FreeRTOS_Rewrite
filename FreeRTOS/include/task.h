@@ -55,6 +55,7 @@ static void prvInitialiseNewTask (
 
 void prvInitialiseTaskLists( void );
 void vTaskStartScheduler( void ) ;
+void vTaskDelay( const TickType_t xTicksToDelay );
 #endif
 						
 						

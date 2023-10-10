@@ -1,4 +1,5 @@
 #include "port.h"
+#include "portmacro.h"
 
 #define portINITIAL_XPSR            ( 0x01000000 )
 #define portSTART_ADDRESS_MASK      ( ( StackType_t ) 0xfffffffeUL  )
@@ -10,6 +11,28 @@
 #define portNVIC_SYSTICK_PRI                        ( ( ( uint32_t ) configKERNEL_INTERRUPT_PRIORITY ) << 24UL )
 
 #define portVECTACTIVE_MASK					( 0xFFUL )
+
+/* 系统时钟 */
+/* Systick控制寄存器 */
+#define portNVIC_SYSTICK_CTRL_REG           ( * ( ( volatile uint32_t * ) 0xe000e010 ) )
+/* Systick重装载寄存器 */
+#define portNVIC_SYSTICK_LOAD_REG           ( * ( ( volatile uint32_t * ) 0xe000e014 ) )
+#define portNVIC_SYSPRI2_REG				( * ( ( volatile uint32_t * ) 0xe000ed20 ) )
+
+#ifndef configSYSTICK_CLOCK_HZ
+#define configSYSTICK_CLOCK_HZ configCPU_CLOCK_HZ
+/* 该位用来选择是Systick内核时钟(1) 还是其他时钟(0) */
+#define portNVIC_SYSTICK_CLK_BIT    ( 1UL << 2UL )
+#else
+#define portNVIC_SYSTICK_CLK_BIT    ( 0 )
+#endif
+
+#define portNVIC_SYSTICK_INT_BIT        ( 1UL << 1UL )
+#define portNVIC_SYSTICK_ENABLE_BIT     ( 1UL << 0   )
+
+void vPortSetupTimerInterrupt( void );
+/* 系统时钟 */
+
 
 // 当前运行的任务块指针
 extern volatile TCB_t * pxCurrentTCB;
@@ -67,6 +90,9 @@ BaseType_t xPortStartScheduler( void )
     // 配置 PendSV 和 Systick 为优先级最低
     portNVIC_SYSPRI2_REG |= portNVIC_PENDSV_PRI;
     portNVIC_SYSPRI2_REG |= portNVIC_SYSTICK_PRI;
+
+    /* 初始化Systick */
+    vPortSetupTimerInterrupt();
 
     // 配置嵌套计数器
     uxCriticalNesting = 0;
@@ -200,4 +226,30 @@ void vPortExitCritical( void )
     {
         portENABLE_INTERRUPTS();
     }
+}
+
+void xPortSysTickHandler( void )
+{
+    /* 关中断 */
+    vPortRaiseBASEPRI();
+
+    /* +1s */
+    xTaskIncrementTick();
+
+    /* 开中断 */
+    vPortClearBASEPRIFromISR();
+}
+
+void vPortSetupTimerInterrupt( void )
+{
+    /* 配置重装载寄存器 */
+    portNVIC_SYSTICK_LOAD_REG = ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
+
+    /*  设定使用内核时钟 
+        使能Systick定时器中断
+        使能Systick定时器
+    */
+    portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT |
+                                  portNVIC_SYSTICK_INT_BIT |
+                                  portNVIC_SYSTICK_ENABLE_BIT );
 }

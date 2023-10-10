@@ -1,3 +1,11 @@
+/*
+ * @Author: banned 1286253605@qq.com
+ * @Date: 2023-07-23 00:53:18
+ * @LastEditors: banned 1286253605@qq.com
+ * @LastEditTime: 2023-10-11 02:04:21
+ * @FilePath: \FreeRTOS_Rewrite\FreeRTOS\task.c
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 #include "task.h"
 #include "FreeRTOS.h"
 
@@ -9,10 +17,12 @@ extern TCB_t IdleTaskTCB;
 
 void prvCheckTasksWaitingTermination( void );
 void prvIdleTask( void );
+void xTaskIncrementTick( void );
 
 // 当前正在运行任务的任务控制块指针 TCB_t *
 volatile TCB_t * pxCurrentTCB = NULL;
-
+// 全局tick
+static volatile UBaseType_t xTickCount = ( TickType_t )0U;
 // 任务就绪链表
 List_t pxReadyTasksLists[ configMAX_PRIORITIES ];
 
@@ -140,6 +150,7 @@ void prvInitialiseTaskLists( void )
 
 void vTaskStartScheduler( void ) 
 {
+
     // ————————————————————————创建空闲任务————————————————————————
     TCB_t *pxIdleTaskTCBBuffer = NULL;
     StackType_t *pxIdleTaskStackBuffer = NULL;
@@ -225,3 +236,28 @@ void vTaskDelay( const TickType_t xTicksToDelay )
     taskYIELD();
 
 }
+
+/* +1s */
+void xTaskIncrementTick( void )
+{
+    TCB_t *pxTCB = NULL;
+    BaseType_t i = 0;
+
+    const TickType_t xConstTickCount = xTickCount + 1;
+    xTickCount = xConstTickCount;
+
+    /* 扫描 就绪链表中所有任务的 xTicksToDelay 如果不是0 则-1 */
+    for( i = 0; i < configMAX_PRIORITIES; i++ )
+    {
+        pxTCB = ( TCB_t* ) listGET_OWNER_OF_HEAD_ENTRY( ( &pxReadyTasksLists[ i ] ) );
+        if( pxTCB->xTicksToDelay > 0 )
+        {
+            pxTCB->xTicksToDelay--;
+        }
+    }
+
+    /* 任务切换 */
+    portYIELD();
+}
+
+

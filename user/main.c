@@ -73,7 +73,8 @@ void Task1_Entry( void *p_arg )
     for ( ;; ) 
     {
         Flag_1 = 1;
-        delay( 100 );
+        // delay( 100 );
+        vTaskDelay( 100 );
         Flag_1 = 0;
 
         // 触发任务切换，手动任务切换
