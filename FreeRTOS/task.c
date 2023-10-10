@@ -1,6 +1,15 @@
 #include "task.h"
 #include "FreeRTOS.h"
 
+// 空闲任务所需
+void vApplicationGetIdleTaskMemory( TCB_t **ppxIdleTaskTCBBuffer, 
+                                    StackType_t **ppxIdleTaskStackBuffer,
+                                    uint32_t *pulIdleTaskStackSize );
+extern TCB_t IdleTaskTCB;
+
+void prvCheckTasksWaitingTermination( void );
+void prvIdleTask( void );
+
 // 当前正在运行任务的任务控制块指针 TCB_t *
 volatile TCB_t * pxCurrentTCB = NULL;
 
@@ -10,6 +19,11 @@ List_t pxReadyTasksLists[ configMAX_PRIORITIES ];
 // main.c中的任务控制块
 extern TCB_t Task_1_TCB;
 extern TCB_t Task_2_TCB;
+
+#if( INCLUDE_vTaskDelete == 1 )
+    static List_t xTaskWaitingTermination = {0};
+    static volatile UBaseType_t uxDeletedTasksWaitingCleanUp = ( UBaseType_t )0U;
+#endif
 
 #if( configSUPPORT_STATIC_ALLOCATION == 1 )
 
@@ -126,6 +140,27 @@ void prvInitialiseTaskLists( void )
 
 void vTaskStartScheduler( void ) 
 {
+    // ————————————————————————创建空闲任务————————————————————————
+    TCB_t *pxIdleTaskTCBBuffer = NULL;
+    StackType_t *pxIdleTaskStackBuffer = NULL;
+    uint32_t ulIdleTaskStackSize;
+
+    vApplicationGetIdleTaskMemory( &pxIdleTaskTCBBuffer, 
+                                   &pxIdleTaskStackBuffer, 
+                                   &ulIdleTaskStackSize );
+
+    xTaskCreateStatic( (TaskFunction_t)prvIdleTask, 
+                        ( char* )"IDLE",
+                        ( uint32_t)ulIdleTaskStackSize,
+                        ( void* )NULL,
+                        ( StackType_t * )pxIdleTaskStackBuffer,
+                        ( TCB_t* )pxIdleTaskTCBBuffer );
+
+    // 将空闲任务插入 就绪列表中的第一条
+    vListInsertEnd( &( pxReadyTasksLists[0] ),
+                    &( ( ( TCB_t* )pxIdleTaskTCBBuffer )->xStateListItem ) );
+
+    // ————————————————————————创建空闲任务————————————————————————
     // 手动指定启动调度器后运行的第一个任务
     pxCurrentTCB = &Task_1_TCB;
 
@@ -144,4 +179,49 @@ void prvStartFirstTask( void )
 */
 
 
+void prvIdleTask( void )
+{
+    for(;;)
+    {
+        prvCheckTasksWaitingTermination();
 
+    }
+
+}
+
+
+void prvCheckTasksWaitingTermination( void )
+{
+    #if( INCLUDE_vTaskDelete == 1 )
+
+        TCB_t *pxTCB;
+        // 检查是否有删除了的任务
+        while( uxDeletedTasksWaitingCleanUp > ( UBaseType_t )0U )
+        {
+            taskENTER_CRITICAL();
+            {
+                pxTCB = ( TCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( ( &xTaskWaitingTermination ) );
+                uxListRemove( &( pxTCB->xStateListItem ) );
+                --uxDeletedTasksWaitingCleanUp;
+            }
+            taskEXIT_CRITICAL();
+            // prvDeleteTCB( pxTCB );
+        }
+    
+    #endif
+
+}
+
+
+void vTaskDelay( const TickType_t xTicksToDelay )
+{
+    TCB_t *pxTCB = NULL;
+
+    // 获取当前任务TCB 因为只有当前任务才能运行 并 调用这个函数- -||
+    pxTCB = pxCurrentTCB;
+
+    pxTCB->xTicksToDelay = xTicksToDelay;
+
+    taskYIELD();
+
+}

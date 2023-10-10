@@ -12,11 +12,14 @@ extern List_t pxReadyTasksLists[ configMAX_PRIORITIES ];
 #define TASK_2_STACK_SIZE 20
 TCB_t Task_1_TCB;
 TCB_t Task_2_TCB;
+TCB_t IdleTaskTCB;
 TaskHandle_t Task_1_Handle;
 TaskHandle_t Task_2_Handle;
 //* 任务栈实际上就是一个全局数组
 StackType_t Task_1_Stack[ TASK_1_STACK_SIZE ];
 StackType_t Task_2_Stack[ TASK_2_STACK_SIZE ];
+/*1010 为什么规定数组大小为128之后 任务栈会x4? 因为数组中的元素是 uint32_t 一个元素占4字节  */
+StackType_t IdleTaskStack[ configMINIMAL_STACK_SIZE ];
 
 // 函数声明
 void Task1_Entry( void *p_arg ) ;
@@ -91,3 +94,14 @@ void Task2_Entry( void *p_arg )
         taskYIELD();
     }
 }
+
+// 空闲任务
+void vApplicationGetIdleTaskMemory( TCB_t **ppxIdleTaskTCBBuffer, 
+                                    StackType_t **ppxIdleTaskStackBuffer,
+                                    uint32_t *pulIdleTaskStackSize )
+{
+    *ppxIdleTaskTCBBuffer = &IdleTaskTCB;
+    *ppxIdleTaskStackBuffer = IdleTaskStack;
+    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+}
+

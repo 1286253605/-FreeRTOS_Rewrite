@@ -87,19 +87,35 @@ typedef struct xList
 #define listCURRENT_LIST_LENGTH( pxList )\
         ( ( pxList )->uxNumberOfItems )
 
+#define listGET_OWNER_OF_HEAD_ENTRY( pxList )  ( (&( ( pxList )->xListEnd ))->pxNext->pvOwner )
+
+
 /* 获取链表第一个节点的OWNER，即TCB */
-#define listGET_OWNER_OF_NEXT_ENTRY( pxTCB, pxList )                                        \
-{                                                                                           \
-    List_t * const pxConstList = ( pxList );                                                \
-    /* 节点索引指向链表第一个节点 */                                                            \
-    ( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;                            \
-    /* 判断链表迭代器是否指向了End节点，如果是，则指向下一个节点 */                                  \
-    if( ( void * ) ( pxConstList )->pxIndex == ( void * ) &( ( pxConstList )->xListEnd ) )  \
-    {                                                                                       \
-        ( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;                        \
-    }                                                                                       \
-    /* 获取节点的OWNER，即TCB */                                                              \
-    ( pxTCB ) = ( pxConstList )->pxIndex->pvOwner;                                          \
+// #define listGET_OWNER_OF_NEXT_ENTRY( pxTCB, pxList )                                        \
+// {                                                                                           \
+//     List_t * const pxConstList = ( pxList );                                                \
+//     /* 节点索引指向链表第一个节点 */                                                            \
+//     ( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;                            \
+//     /* 判断链表迭代器是否指向了End节点，如果是，则指向下一个节点 */                                  \
+//     if( ( void * ) ( pxConstList )->pxIndex == ( void * ) &( ( pxConstList )->xListEnd ) )  \
+//     {                                                                                       \
+//         ( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;                        \
+//     }                                                                                       \
+//     /* 获取节点的OWNER，即TCB */                                                              \
+//     ( pxTCB ) = ( pxConstList )->pxIndex->pvOwner;                                          \
+// }
+
+#define listGET_OWNER_OF_NEXT_ENTRY( pxTCB, pxList )										\
+{																							\
+List_t * const pxConstList = ( pxList );													\
+	/* Increment the index to the next item and return the item, ensuring */				\
+	/* we don't return the marker used at the end of the list.  */							\
+	( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;							\
+	if( ( void * ) ( pxConstList )->pxIndex == ( void * ) &( ( pxConstList )->xListEnd ) )	\
+	{																						\
+		( pxConstList )->pxIndex = ( pxConstList )->pxIndex->pxNext;						\
+	}																						\
+	( pxTCB ) = ( pxConstList )->pxIndex->pvOwner;											\
 }
 
 
