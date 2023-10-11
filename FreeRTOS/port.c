@@ -193,17 +193,7 @@ __asm void xPortPendSVHandler( void )
 }
 
 
-void vTaskSwitchContext( void ) 
-{
-    if ( pxCurrentTCB == &Task_1_TCB )
-    {
-        pxCurrentTCB = &Task_2_TCB;
-    }
-    else
-    {
-        pxCurrentTCB = &Task_1_TCB;
-    }
-}
+
 
 void vPortEnterCritical( void )
 {

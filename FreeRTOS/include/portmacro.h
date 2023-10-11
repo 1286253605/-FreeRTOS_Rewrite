@@ -2,7 +2,7 @@
  * @Author: Banned 1286253605@qq.com
  * @Date: 2023-07-20 13:46:54
  * @LastEditors: banned 1286253605@qq.com
- * @LastEditTime: 2023-10-11 00:47:05
+ * @LastEditTime: 2023-10-11 22:36:42
  * @FilePath: \FreeRTOS_Rewrite\FreeRTOS\include\portmacro.h
  * @Description: 
  * 
@@ -105,7 +105,7 @@ void portFORCE_INLINE  vPortSetCLEARBASEPRI( uint32_t ulBASEPRI )
     }
 }
 
-void portFORCE_INLINE void vPortClearBASEPRIFromISR( void )
+void portFORCE_INLINE vPortClearBASEPRIFromISR( void )
 {
     __asm
     {
@@ -121,8 +121,20 @@ void portFORCE_INLINE void vPortClearBASEPRIFromISR( void )
 /* 退出临界段 */
 #define protEXIT_CRITICAL() vPortExitCritical()
 
+/* 多优先级 */
+#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
 
+/* 根据传入的形参 也就是任务优先级 将变量 uxReadyPriorities 的某一位置1,  */
+/* uxReadyPriorities 对应task.c 文件中的 uxTopReadyPriority  */
+#define portRECORD_READY_PRIORITY( uxPriority, uxReadyPriorities )  ( uxReadyPriorities ) |=  ( 1UL << ( uxPriority ) )
+#define portRESET_READY_PRIORITY( uxPriority, uxReadyPriorities )   ( uxReadyPriorities ) &= ~( 1UL << ( uxPriority ) )
+#if 0
+#define portGET_HIGHEST_PRIORITY( uxTopPriority, uxReadyPriorities ) uxTopPriority = ( 31UL - ( uint32_t )__clz( ( uxReadyPriorities ) ) )
+#endif
 
+#if 1
+    #define portGET_HIGHEST_PRIORITY( uxTopPriority, uxReadyPriorities ) uxTopPriority = ( 31UL - ( uint32_t ) __clz( ( uxReadyPriorities ) ) )
 
+#endif
 #endif /* PORTMACRO_H */
 
