@@ -29,6 +29,8 @@ typedef struct tskTaskControlBlock
     char pcTaskName[ configMAX_TASK_NAME_LEN  ];
     // 延时时间
     TickType_t xTicksToDelay;
+    // 任务优先级
+    UBaseType_t uxPriority;
 
 } tskTCB;
 typedef tskTCB TCB_t;
@@ -39,6 +41,7 @@ TaskHandle_t xTaskCreateStatic (
     const char * const pcName,
     const uint32_t ulStackDepth,
     void * const pvParameters,
+    UBaseType_t uxPriority,
     StackType_t *const puxStackBuffer,
     TCB_t * const pxTaskBuffer
                                 );
@@ -48,6 +51,7 @@ static void prvInitialiseNewTask (
             const char * const pcName,
             const uint32_t ulStackDepth,
             void * const pvParameters,
+            UBaseType_t uxPriority,
             TaskHandle_t * const pxCreatedTask,
             TCB_t * pxNewTCB
                                 );
